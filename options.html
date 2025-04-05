@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Trip Planner Options</title>
+    <style>
+        body { font-family: sans-serif; padding: 10px; min-width: 300px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="text"] { width: 95%; margin-bottom: 10px; }
+        button { padding: 8px 15px; }
+        #status { margin-top: 10px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>AI Trip Planner Settings</h1>
+    <p>You need a Google API Key for the Gemini API.</p>
+    <p>You can get one from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>.</p>
+
+    <label for="apiKey">Enter your Google API Key:</label>
+    <input type="text" id="apiKey" name="apiKey">
+
+    <button id="save">Save Key</button>
+    <div id="status"></div>
+
+    <script src="options.js"></script>
+</body>
+</html>

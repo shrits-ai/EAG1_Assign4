@@ -1,7 +1,7 @@
 // background.js
 
 // !!! IMPORTANT: Replace with your actual Gemini API Key !!!
-const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE"; // Replace with your actual Gemini API Key
+const GEMINI_API_KEY = "AIzaSyDQ49J_L4C20nasxpGcThzxQktovTvNMZM"; // Replace with your actual Gemini API Key
 
 // !!! IMPORTANT: Replace with your actual Gemini API Key !!!
 // const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";

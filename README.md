@@ -1,86 +1,69 @@
-# Agentic Prompt Refiner & Single-Shot Planner
+# AI Trip Planner Chrome Extension (User API Key)
 
-This Chrome extension leverages Google's Gemini API in an agentic workflow to refine prompts for complex tasks. As a special feature, if the task description relates to travel planning, it uses the refined prompt to generate a complete draft itinerary in a single, non-interactive step.
+## Description
 
-## Overview
+This Chrome extension helps you plan your trips by leveraging Google's Generative AI (Gemini models) to create personalized travel itineraries. Simply provide your destination, dates, interests, budget, and any other notes, and the extension will generate a suggested day-by-day plan.
 
-This plugin serves two main purposes:
-
-1.  **Prompt Refinement:** For any task description you provide, it internally uses a multi-step AI process (Draft -> Evaluate -> Revise) to generate a refined prompt designed to elicit better, more structured responses from Large Language Models (LLMs). It displays the initial draft, the evaluation details (based on criteria for good prompting), and the final revised prompt.
-2.  **Single-Shot Travel Planning:** If the initial task description contains keywords related to travel (e.g., "trip," "vacation," "itinerary," "visit Paris"), the plugin performs an additional step after refining the prompt. It uses the refined prompt to instruct a powerful LLM (like Gemini Pro) to generate a *complete* draft travel plan based *only* on the initial details provided, all in one go. **There is no interactive chat or back-and-forth for planning.**
-
-The goal is to provide both insights into prompt engineering and a quick-start draft plan for travel requests.
-
-## How it Works
-
-1.  **Input:** User enters a task description or details for a trip plan into the extension's popup.
-2.  **Internal Prompt Refinement (All Tasks):**
-    * The plugin sends the task description to the background.
-    * An LLM (e.g., Gemini Flash) generates a *draft prompt* suitable for the task. If identified as travel planning, the draft aims for single-shot plan generation.
-    * The draft prompt is evaluated by the LLM against specific criteria (focused on clarity, structure, and effectiveness for single-shot generation if planning). The results are formatted as JSON.
-    * The LLM revises the draft prompt based on the evaluation feedback, creating a *final refined prompt*.
-3.  **Task Type Check:** The background script checks the original task description for travel-related keywords.
-4.  **Optional: Single-Shot Plan Generation (Travel Tasks Only):**
-    * If the task is identified as travel planning, the plugin uses the *final refined prompt* as instructions for a more capable LLM (e.g., Gemini Pro).
-    * It provides the original task description as input and requests a complete draft itinerary in a single response, explicitly instructing the LLM *not* to ask clarifying questions but to make plausible assumptions.
-5.  **Output:**
-    * The refinement details (Initial Draft Prompt, Evaluation JSON, Final Revised Prompt) are **always** displayed.
-    * If it was identified as a travel planning task, the generated single-shot Trip Plan Draft is **also** displayed.
+**Important:** This extension requires you to provide your **own** Google API Key for the Gemini API. You are responsible for managing your API key and any associated usage costs with Google.
 
 ## Features
 
-* **Agentic Prompt Refinement:** Utilizes a Draft->Evaluate->Revise workflow.
-* **Conditional Plan Generation:** Automatically detects travel planning requests.
-* **Single-Shot Planning:** Generates a complete draft itinerary non-interactively for travel tasks.
-* **Transparency:** Shows the intermediate steps of prompt refinement.
-* Powered by Google Gemini API.
-* Simple popup interface.
+* Generates travel itineraries based on user inputs:
+    * Destination
+    * Dates
+    * Interests (e.g., history, food, nature)
+    * Budget (Budget, Mid-range, Luxury)
+    * Additional notes
+* Provides a day-by-day plan within the extension popup.
+* Attempts to include cost estimations (based on LLM knowledge).
+* Attempts to identify the type of reasoning used by the AI (feature depends on LLM output).
+* Simple interface via the extension popup.
+* User configures their own Google API Key via an dedicated Options page.
 
-## Technology Stack
+## Prerequisites
 
-* JavaScript (ES6+)
-* HTML5 / CSS3
-* Chrome Extension APIs (Manifest V3, Service Workers, Messaging)
-* Google Gemini API (potentially using different models like Flash for refinement and Pro for planning)
+* Google Chrome browser installed.
+* A Google API Key for the Gemini API. You can obtain one from [Google AI Studio](https://aistudio.google.com/app/apikey).
 
-## Setup and Installation
+## Installation and Setup
 
-1.  **Clone or Download:** Get the code files (`manifest.json`, `popup.html`, `popup.js`, `background.js`, `README.md`) and the `images` folder.
-2.  **Get Google Gemini API Key:**
-    * Obtain an API key from Google AI Studio: [https://aistudio.google.com/](https://aistudio.google.com/)
-3.  **Add API Key to Code:**
-    * Open the `background.js` file in a text editor.
-    * Find the line: `const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY_HERE";`
-    * Replace `"YOUR_GEMINI_API_KEY_HERE"` with your actual Gemini API key.
-    * **SECURITY WARNING:** This method of including the API key is insecure for distribution. Never commit your key to public repositories. Use secure key management for real applications.
-4.  **Save `background.js`**.
-5.  **Load the Extension in Chrome:**
-    * Open Google Chrome and navigate to `chrome://extensions`.
-    * Enable **"Developer mode"** (top-right toggle).
-    * Click **"Load unpacked"** (top-left).
-    * Select the extension's root folder (the one containing `manifest.json`).
-    * Ensure the extension ("Agentic Prompt Refiner & Planner") is enabled. Reload it using the reload icon on its card if you make code changes.
+1.  **Download or Clone:** Download the extension files or clone the repository to your local machine.
+2.  **Open Chrome Extensions:** Open Google Chrome, type `chrome://extensions` in the address bar, and press Enter.
+3.  **Enable Developer Mode:** Ensure the "Developer mode" toggle switch (usually in the top-right corner) is turned ON.
+4.  **Load Unpacked:** Click the "Load unpacked" button (usually in the top-left corner).
+5.  **Select Folder:** Navigate to and select the directory where you downloaded/cloned the extension files (the folder containing `manifest.json`).
+6.  **Configure API Key:**
+    * Find the newly added "AI Trip Planner" extension card on the `chrome://extensions` page.
+    * Alternatively, right-click the extension's icon (once it appears in your Chrome toolbar, you might need to pin it) and select "Options".
+    * The Options page will open in a new tab.
+    * Paste your Google API Key (obtained from Google AI Studio) into the input field.
+    * Click "Save Key".
 
 ## Usage
 
-1.  Click the extension's icon in your Chrome toolbar.
-2.  Enter a description of the task OR the details for the trip you want planned in the text area.
-3.  Click the "Refine / Plan" button.
-4.  Wait while the plugin processes (refinement takes a few seconds; planning adds more time).
-5.  View the "Prompt Refinement Details" section (always shown on success).
-6.  If your request was detected as travel planning, view the generated draft plan in the "Generated Trip Plan Draft" section.
+1.  Click the AI Trip Planner icon in your Chrome toolbar.
+2.  The extension popup will appear.
+3.  Fill in the details for your desired trip (Destination, Dates, Interests, etc.).
+4.  Click the "Plan My Trip" button.
+5.  Wait for the AI to generate the itinerary. Loading may take a few moments.
+6.  The generated plan will appear in the results area of the popup.
+7.  If you encounter errors, ensure your API key is correctly saved in the Options page and is valid. Check the console (Right-click popup -> Inspect) for detailed error messages.
 
-## Internal Evaluator Criteria (Example)
+## Technology Stack
 
-During the refinement step, prompts are evaluated internally. For single-shot planning prompts, the criteria focus on aspects like:
+* HTML5
+* CSS3
+* JavaScript (ES6+)
+* Chrome Extension APIs (Manifest V3, `chrome.storage`, `Workspace`)
+* Google Generative AI API (Gemini Pro / Gemini 1.5 Pro)
 
-```json
-{
-  "clarity_of_task": boolean, // Is task clear?
-  "completeness_instruction": boolean | null, // Does it ask for a complete plan? (null if not planning)
-  "no_questions_instruction": boolean | null, // Does it forbid questions? (null if not planning)
-  "structured_output_guidance": boolean, // Does it suggest output format?
-  "handling_missing_info": boolean | null, // Does it guide assumption-making? (null if not planning)
-  "overall_effectiveness_single_shot": boolean, // Good for one response?
-  "summary": "Brief text summary noting strengths/weaknesses."
-}
+## Important Notes & Disclaimer
+
+* **API Key Security:** Your API key is stored locally using `chrome.storage.local`. While this is standard practice for user-provided keys in extensions, be aware of the security implications of storing sensitive keys in a browser environment.
+* **API Costs:** All calls made to the Google Generative AI API using your key are subject to Google's pricing and usage limits. You are solely responsible for any costs incurred.
+* **Itinerary Accuracy:** The generated itineraries are suggestions created by an AI. Always double-check opening hours, addresses, booking requirements, costs, travel times, and safety information from official sources before finalizing your plans. This tool is intended for inspiration and planning assistance, not as a definitive travel guide.
+* **Content Safety:** The extension relies on Google's API safety settings. Requests or responses might be blocked if they trigger these filters.
+
+## License
+
+This project is licensed under the MIT License - see the `LICENSE.md` file for details (or add license text here).

@@ -1,64 +1,50 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Agentic Refiner & Planner</title>
-    <style>
-        body { font-family: sans-serif; width: 500px; padding: 15px; font-size: 14px; display: flex; flex-direction: column; max-height: 580px; overflow-y: auto;} /* Allow body scroll */
-        textarea { width: 95%; min-height: 80px; margin-bottom: 10px; border: 1px solid #ccc; padding: 5px; font-size: 13px; }
-        button { padding: 8px 15px; cursor: pointer; font-size: 14px; border-radius: 4px; border: 1px solid #ccc; background-color: #f0f0f0;}
-        button:hover { background-color: #e0e0e0; }
-        button:disabled { cursor: not-allowed; opacity: 0.6;}
-        h3 { margin-top: 15px; margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 3px;}
-        pre {
-            background-color: #f0f0f0;
-            padding: 10px;
-            border: 1px solid #ddd;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-size: 13px;
-            max-height: 150px; /* Adjusted max-height */
-            overflow-y: auto;
-            border-radius: 4px;
-            margin-bottom: 10px; /* Spacing */
-        }
-        .output-section { margin-top: 15px; }
-        .loading-message { font-style: italic; color: grey; margin-top: 10px; text-align: center; padding: 10px; }
-        .error-message { color: #D8000C; background-color: #FFD2D2; border: 1px solid; margin: 10px 0px; padding:10px; border-radius: 4px; font-weight: bold; white-space: pre-wrap; word-wrap: break-word;}
-        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em;}
-        hr { margin-top: 20px; margin-bottom: 5px; }
+    <title>AI Trip Planner</title>
+    <link rel="stylesheet" href="popup.css"> <style> /* Basic inline styles for now */
+        body { font-family: sans-serif; width: 400px; padding: 15px;}
+        label { display: block; margin-top: 10px; }
+        input[type="text"], input[type="date"], textarea, select { width: 95%; margin-bottom: 10px; padding: 5px;}
+        button { padding: 10px 20px; cursor: pointer;}
+        #results { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; white-space: pre-wrap; /* Keep formatting */ }
+        #loading { display: none; text-align: center; padding: 10px; }
+        #error { color: red; font-weight: bold; margin-top: 10px; display: none; }
     </style>
 </head>
 <body>
-    <h2>Agentic Refiner & Planner</h2>
+    <h1>Plan Your Trip</h1>
 
-    <div id="initialInputSection">
-        <label for="taskDesc">Enter Task Description or Trip Details:</label>
-        <textarea id="taskDesc" placeholder="Describe task (e.g., Explain X) OR trip details (e.g., Plan trip to Paris, 5 days, budget focus)..."></textarea>
-        <button id="processBtn">Refine / Plan</button>
+    <div id="input-form">
+        <label for="destination">Destination:</label>
+        <input type="text" id="destination" required>
+
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate">
+
+        <label for="endDate">End Date:</label>
+        <input type="date" id="endDate">
+
+        <label for="interests">Interests (comma-separated):</label>
+        <input type="text" id="interests" placeholder="e.g., history, food, nature">
+
+        <label for="budget">Budget:</label>
+        <select id="budget">
+            <option value="budget">Budget</option>
+            <option value="mid-range" selected>Mid-range</option>
+            <option value="luxury">Luxury</option>
+        </select>
+
+         <label for="extraNotes">Additional Notes:</label>
+        <textarea id="extraNotes" rows="3" placeholder="e.g., travelling with kids, prefer walking tours..."></textarea>
+
+        <button id="planTripBtn">Plan My Trip</button>
     </div>
 
-    <div id="loadingIndicator" class="loading-message" style="display: none;">Working...</div>
-    <div id="errorDisplay" class="error-message" style="display: none;"></div>
-
-    <div id="refinerResultsArea" style="display: none;">
-        <hr>
-        <div class="output-section">
-            <h3>Prompt Refinement Details:</h3>
-             <h4 style="margin-bottom: 3px; margin-top: 5px; font-size: 0.9em;">Initial Draft Prompt:</h4>
-            <pre id="draftPrompt"></pre>
-            <h4 style="margin-bottom: 3px; margin-top: 5px; font-size: 0.9em;">Evaluation (JSON):</h4>
-            <pre id="evaluationJson"></pre>
-            <h4 style="margin-bottom: 3px; margin-top: 5px; font-size: 0.9em;">Final Revised Prompt:</h4>
-            <pre id="finalPrompt"></pre>
+    <div id="loading">Loading...</div>
+    <div id="error"></div>
+    <div id="results">
         </div>
-    </div>
-
-    <div id="planOutputArea" style="display: none;">
-        <hr>
-        <div class="output-section">
-            <h3>Generated Trip Plan Draft:</h3>
-            <pre id="planOutputPre" style="max-height: 300px;"></pre> </div>
-    </div>
 
     <script src="popup.js"></script>
 </body>

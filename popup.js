@@ -1,153 +1,158 @@
 // popup.js
 
-// Initial Input Elements
-const initialInputSection = document.getElementById('initialInputSection');
-const taskDescInput = document.getElementById('taskDesc');
-const processBtn = document.getElementById('processBtn');
+const planTripBtn = document.getElementById('planTripBtn');
+const destinationInput = document.getElementById('destination');
+const startDateInput = document.getElementById('startDate');
+const endDateInput = document.getElementById('endDate');
+const interestsInput = document.getElementById('interests');
+const budgetSelect = document.getElementById('budget');
+const extraNotesInput = document.getElementById('extraNotes');
+const resultsDiv = document.getElementById('results');
+const loadingDiv = document.getElementById('loading');
+const errorDiv = document.getElementById('error');
 
-// Refiner Output Elements
-const refinerResultsArea = document.getElementById('refinerResultsArea');
-const draftPromptPre = document.getElementById('draftPrompt');
-const evaluationJsonPre = document.getElementById('evaluationJson');
-const finalPromptPre = document.getElementById('finalPrompt');
+planTripBtn.addEventListener('click', () => {
+    // --- 1. Get User Inputs ---
+    const destination = destinationInput.value.trim();
+    const startDate = startDateInput.value;
+    const endDate = endDateInput.value;
+    const interests = interestsInput.value.trim();
+    const budget = budgetSelect.value;
+    const notes = extraNotesInput.value.trim();
 
-// Planner Output Elements (Single Output)
-const planOutputArea = document.getElementById('planOutputArea');
-const planOutputPre = document.getElementById('planOutputPre');
-
-// Common Elements
-const loadingIndicator = document.getElementById('loadingIndicator');
-const errorDisplay = document.getElementById('errorDisplay');
-
-// --- Helper Functions ---
-
-function showLoading(message = "Working...") {
-    loadingIndicator.textContent = message;
-    loadingIndicator.style.display = 'block';
-    processBtn.disabled = true;
-}
-
-function hideLoading() {
-    loadingIndicator.style.display = 'none';
-    processBtn.disabled = false;
-}
-
-function showError(message) {
-    const cleanMessage = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    errorDisplay.innerHTML = cleanMessage;
-    errorDisplay.style.display = 'block';
-    hideLoading();
-}
-
-function clearError() {
-    errorDisplay.textContent = '';
-    errorDisplay.style.display = 'none';
-}
-
-// Displays the refiner results
-function displayRefinerResults(draft, evaluation, final) {
-    displayText(draftPromptPre, draft);
-    displayJson(evaluationJsonPre, evaluation);
-    displayText(finalPromptPre, final);
-    refinerResultsArea.style.display = 'block'; // Show this section
-}
-
-// Displays the single plan output
-function displayPlanOutput(planText) {
-    displayText(planOutputPre, planText || "(No plan generated or empty response)");
-    planOutputArea.style.display = 'block'; // Show this section
-}
-
-// Send message to background script helper
-function sendMessageToBackground(action, payload) {
-    console.log(`Popup: Sending message - Action: ${action}`, payload ? `Payload keys: ${Object.keys(payload)}`: '');
-    return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage({ action, ...payload }, (response) => {
-            if (chrome.runtime.lastError) {
-                console.error("Popup: chrome.runtime.lastError:", chrome.runtime.lastError);
-                reject(new Error(`Extension messaging error: ${chrome.runtime.lastError.message}. Reloading the extension might help.`));
-            } else if (response && response.success) {
-                console.log(`Popup: Received success response for Action: ${action}`);
-                resolve(response); // Resolve with the *entire* response object
-            } else {
-                const errorMsg = response?.error || "Unknown error from background. Check Service Worker console.";
-                console.error(`Popup: Received error response for Action: ${action}:`, errorMsg);
-                reject(new Error(errorMsg));
-            }
-        });
-    });
-}
-
-// Helper to safely display text in <pre> tags
-function displayText(element, text) {
-    if (element) element.textContent = text ?? '(No content received)';
-}
-
-// Helper to display JSON prettily
-function displayJson(element, jsonData) {
-     if (element) {
-         try {
-             // Handle potential non-object JSON data (like null)
-             if (typeof jsonData !== 'object' || jsonData === null) {
-                 element.textContent = JSON.stringify(jsonData) ?? '(Invalid JSON received)';
-             } else {
-                 element.textContent = JSON.stringify(jsonData, null, 2);
-             }
-         }
-         catch (e) { element.textContent = `(Error formatting JSON: ${e.message})`; }
-     }
-}
-
-// --- Event Listener ---
-
-processBtn.addEventListener('click', async () => {
-    clearError();
-    const taskDescription = taskDescInput.value.trim();
-    if (!taskDescription) {
-        showError("Please enter a task description or trip details.");
+    // --- Basic Validation ---
+    if (!destination) {
+        showError('Please enter a destination.');
         return;
     }
 
-    // Reset UI
-    refinerResultsArea.style.display = 'none';
-    planOutputArea.style.display = 'none'; // Hide plan output initially
-    showLoading("Processing request... (Refining prompt and generating plan if applicable...)");
+    // Clear previous results/errors and show loading
+    resultsDiv.innerHTML = '';
+    hideError();
+    loadingDiv.style.display = 'block';
+    planTripBtn.disabled = true; // Prevent multiple clicks
 
-    try {
-        // Single action handles both refinement and potential single-shot planning
-        const response = await sendMessageToBackground('refineAndPotentiallyPlan', { task: taskDescription });
+    // --- 2. Retrieve API Key ---
+    chrome.storage.local.get(['googleApiKey'], (result) => {
+        const apiKey = result.googleApiKey;
 
-        hideLoading();
-
-        // ALWAYS display the refinement results
-        console.log("Popup: Displaying refinement results.");
-        displayRefinerResults(response.draftPrompt, response.evaluationJson, response.finalPrompt);
-
-        // If it was a planning session, display the generated plan output
-        if (response.isPlanningSession) {
-            console.log("Popup: Displaying generated plan.");
-            displayPlanOutput(response.planOutput);
-        } else {
-            console.log("Popup: Task was not identified as planning; only refinement shown.");
-            planOutputArea.style.display = 'none'; // Ensure plan area is hidden
+        if (!apiKey) {
+            showError('API Key not set. Please set it in the extension options (Right-click extension icon -> Options).');
+            loadingDiv.style.display = 'none';
+            planTripBtn.disabled = false;
+            return;
         }
-        // Keep initial input visible for next task
-        initialInputSection.style.display = 'block';
 
+        // --- 3. Construct the Prompt ---
+        // (This needs significant refinement for good results!)
+        let prompt = `Generate a travel itinerary for a trip to ${destination}.`;
+        if (startDate && endDate) prompt += ` From ${startDate} to ${endDate}.`;
+        prompt += ` The budget is ${budget}.`;
+        if (interests) prompt += ` Focus on interests like: ${interests}.`;
+        if (notes) prompt += ` Keep in mind these additional notes: ${notes}.`;
 
-    } catch (error) {
-        console.error("Popup: Error processing task:", error);
-        showError(`Error: ${error.message}`); // Display error in UI
-        hideLoading();
-        processBtn.disabled = false;
-        // Ensure output areas are hidden on error
-        refinerResultsArea.style.display = 'none';
-        planOutputArea.style.display = 'none';
-        initialInputSection.style.display = 'block'; // Show initial inputs again
-    }
+        prompt += `\n\nPlease provide the output as follows:
+        - A brief overall summary.
+        - Day-wise planning (Day 1: [Date], Morning: ..., Afternoon: ..., Evening: ...). For each activity, estimate the cost if possible.
+        - An overall estimated cost for the planned activities/local transport (excluding flights/accommodation).
+        - Tag the type of reasoning used (e.g., Constraint Satisfaction, Information Retrieval, Creative Generation).`;
+        // ^^^ This prompt structure is basic and needs iteration!
+
+        console.log("Sending Prompt:", prompt); // For debugging
+
+        // --- 4. Call the Google Gemini API ---
+        callGoogleApi(apiKey, prompt);
+    });
 });
 
+async function callGoogleApi(apiKey, promptText) {
+    // Or try this for the latest 1.5 Pro model:
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:generateContent?key=${apiKey}`;
+    const requestBody = {
+        contents: [{
+            parts: [{
+                text: promptText
+            }]
+        }],
+        // Add generationConfig if needed (temperature, max output tokens etc)
+        // generationConfig: {
+        //     temperature: 0.7,
+        //     maxOutputTokens: 1024,
+        // }
+    };
 
-// --- Initial State ---
-refinerResultsArea.style.display = 'none';
-planOutputArea.style.display = 'none';
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        loadingDiv.style.display = 'none';
+        planTripBtn.disabled = false;
+
+        if (!response.ok) {
+            // Try to get error details from Google's response
+            let errorDetails = `HTTP error! Status: ${response.status}`;
+            try {
+                const errorData = await response.json();
+                console.error("API Error Response:", errorData);
+                errorDetails += ` - ${errorData.error?.message || JSON.stringify(errorData)}`;
+            } catch (e) {
+                 errorDetails += ` - ${response.statusText}`;
+                 console.error("Could not parse error response:", e);
+            }
+             // Handle common errors specifically
+             if (response.status === 400) { // Often indicates bad API key or malformed request
+                 errorDetails += "\nPossible causes: Invalid API Key, incorrect request format, or potentially unsafe content in the prompt/response (check Google's safety settings). Please verify your API key in options and the prompt content.";
+             } else if (response.status === 429) { // Quota exceeded
+                 errorDetails += "\nAPI quota exceeded. Please check your usage limits in the Google Cloud Console or AI Studio.";
+             }
+            showError(errorDetails);
+            return;
+        }
+
+        const data = await response.json();
+        console.log("API Response:", data); // For debugging
+
+        // --- 5. Process and Display Results ---
+        // Basic processing - Assumes response structure; **NEEDS ROBUST PARSING**
+        if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) {
+             // Check for safety ratings - if blocked, show message
+             if (data.candidates[0].finishReason === 'SAFETY') {
+                 showError("The request or response was blocked due to safety concerns. Try modifying your input.");
+                 return;
+             }
+
+            const itineraryText = data.candidates[0].content.parts[0].text;
+            // TODO: Implement more sophisticated parsing here to extract sections
+            // (Summary, Day Plan, Cost, Reasoning) instead of just dumping text.
+            resultsDiv.textContent = itineraryText; // Display raw text for now
+        } else if (data.promptFeedback && data.promptFeedback.blockReason) {
+             // Handle cases where the prompt itself was blocked
+             showError(`Prompt blocked due to safety concerns: ${data.promptFeedback.blockReason}. Please modify your input.`);
+        }
+         else {
+            console.error("Unexpected response structure:", data);
+            showError('Received an unexpected response structure from the API.');
+        }
+
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        loadingDiv.style.display = 'none';
+        planTripBtn.disabled = false;
+        showError(`An error occurred: ${error.message}. Check the console for details.`);
+    }
+}
+
+function showError(message) {
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+}
+
+function hideError() {
+    errorDiv.textContent = '';
+    errorDiv.style.display = 'none';
+}
