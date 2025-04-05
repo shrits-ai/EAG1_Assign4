@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Agentic Prompt Refiner & Planner",
+  "version": "1.1", 
+  "description": "Refines prompts and generates single-shot travel plans based on initial details.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "*://*.googleapis.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}
