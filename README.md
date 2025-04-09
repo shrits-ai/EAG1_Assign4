@@ -2,23 +2,19 @@
 
 ## Description
 
-This Chrome extension helps you plan your trips by leveraging Google's Generative AI (Gemini models) to create personalized travel itineraries. Simply provide your destination, dates, interests, budget, and any other notes, and the extension will generate a suggested day-by-day plan.
+This Chrome extension helps you plan your trips by leveraging Google's Generative AI (Gemini models) to create personalized travel itineraries. Simply provide your destination, dates, interests, budget, and any other notes, and the extension will generate a suggested day-by-day plan. **You can then interactively refine the generated plan through follow-up instructions.**
 
-**Important:** This extension requires you to provide your **own** Google API Key for the Gemini API. You are responsible for managing your API key and any associated usage costs with Google.
+**Important:** This extension requires you to provide your **own** Google API Key for the Gemini API. You are responsible for managing your API key and any associated usage costs with Google. Conversation history for refinement is stored locally in your browser's storage.
 
 ## Features
 
-* Generates travel itineraries based on user inputs:
-    * Destination
-    * Dates
-    * Interests (e.g., history, food, nature)
-    * Budget (Budget, Mid-range, Luxury)
-    * Additional notes
-* Provides a day-by-day plan within the extension popup, **rendered from Markdown for better readability**.
-* Attempts to include cost estimations (based on LLM knowledge).
-* Attempts to identify the type of reasoning used by the AI (feature depends on LLM output).
-* Simple interface via the extension popup.
-* User configures their own Google API Key via an dedicated Options page.
+* Generates initial travel itineraries based on user inputs (Destination, Dates, Interests, Budget, Notes).
+* **Allows users to refine the generated itinerary through conversational feedback (multi-turn).**
+* Provides a day-by-day plan within the extension popup, rendered from Markdown.
+* Attempts to include cost estimations and reasoning tags within the plan (based on LLM capabilities).
+* Simple interface via the extension popup with dedicated refinement input.
+* User configures their own Google API Key via a dedicated Options page.
+* Stores conversation history locally using `chrome.storage.local` to allow refinement across short periods.
 
 ## Prerequisites
 
@@ -45,21 +41,28 @@ This Chrome extension helps you plan your trips by leveraging Google's Generativ
 2.  The extension popup will appear.
 3.  Fill in the details for your desired trip (Destination, Dates, Interests, etc.).
 4.  Click the "Plan My Trip" button.
-5.  Wait for the AI to generate the itinerary. Loading may take a few moments.
+5.  Wait for the AI to generate the initial itinerary. Loading may take a few moments.
 6.  The generated plan will appear in the results area of the popup.
-7.  If you encounter errors, ensure your API key is correctly saved in the Options page and is valid. Check the console (Right-click popup -> Inspect) for detailed error messages.
+7.  **To refine the plan:**
+    * Type your feedback or requested changes into the "Refine the plan" text area that appears below the results (e.g., "Make Day 2 less busy", "Add more museums", "Can you find cheaper lunch options?").
+    * Click the "Refine Plan" button.
+    * Wait for the updated itinerary to be generated based on your feedback.
+8.  If you encounter errors, ensure your API key is correctly saved in the Options page and is valid. Check the background script console (via `chrome://extensions`) for detailed error messages.
 
 ## Technology Stack
 
 * HTML5
 * CSS3
 * JavaScript (ES6+)
-* Chrome Extension APIs (Manifest V3, `chrome.storage`, `Workspace`)
+* Chrome Extension APIs (Manifest V3, `chrome.storage.local`, `chrome.runtime`)
 * Google Generative AI API (Gemini Pro / Gemini 1.5 Pro)
+* marked.js (for Markdown rendering)
+## Important Notes & Disclaimer
 
 ## Important Notes & Disclaimer
 
-* **API Key Security:** Your API key is stored locally using `chrome.storage.local`. While this is standard practice for user-provided keys in extensions, be aware of the security implications of storing sensitive keys in a browser environment.
+* **API Key Security:** Your API key is stored locally using `chrome.storage.local`. Be aware of the security implications of storing sensitive keys in a browser environment.
+* **Conversation History Storage:** The history of your current trip planning conversation (initial request, refinements, AI responses) is also stored using `chrome.storage.local` to allow refinement if the extension's background process restarts. This data remains local to your browser. Clearing browser storage or reinstalling the extension may remove this history.
 * **API Costs:** All calls made to the Google Generative AI API using your key are subject to Google's pricing and usage limits. You are solely responsible for any costs incurred.
 * **Itinerary Accuracy:** The generated itineraries are suggestions created by an AI. Always double-check opening hours, addresses, booking requirements, costs, travel times, and safety information from official sources before finalizing your plans. This tool is intended for inspiration and planning assistance, not as a definitive travel guide.
 * **Content Safety:** The extension relies on Google's API safety settings. Requests or responses might be blocked if they trigger these filters.
