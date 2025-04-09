@@ -14,7 +14,7 @@ This Chrome extension helps you plan your trips by leveraging Google's Generativ
     * Interests (e.g., history, food, nature)
     * Budget (Budget, Mid-range, Luxury)
     * Additional notes
-* Provides a day-by-day plan within the extension popup.
+* Provides a day-by-day plan within the extension popup, **rendered from Markdown for better readability**.
 * Attempts to include cost estimations (based on LLM knowledge).
 * Attempts to identify the type of reasoning used by the AI (feature depends on LLM output).
 * Simple interface via the extension popup.
