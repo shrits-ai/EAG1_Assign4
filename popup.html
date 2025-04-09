@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AI Trip Planner</title>
+    <meta charset="UTF-8"> <title>AI Trip Planner</title>
     <link rel="stylesheet" href="popup.css"> <style> /* Basic inline styles for now */
         body { font-family: sans-serif; width: 400px; padding: 15px;}
         label { display: block; margin-top: 10px; }
@@ -10,6 +10,8 @@
         #results { margin-top: 20px; border-top: 1px solid #ccc; padding-top: 10px; white-space: pre-wrap; /* Keep formatting */ }
         #loading { display: none; text-align: center; padding: 10px; }
         #error { color: red; font-weight: bold; margin-top: 10px; display: none; }
+        #refinement-section { margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px; display: none; /* Initially hidden */ }
+        #refinementInput { width: 95%; margin-bottom: 10px; padding: 5px; min-height: 50px; }
     </style>
     <script src="lib/marked.min.js"></script>
 </head>
@@ -44,7 +46,11 @@
 
     <div id="loading">Loading...</div>
     <div id="error"></div>
-    <div id="results">
+    <div id="results"></div>
+    <div id="refinement-section">
+            <label for="refinementInput">Refine the plan (e.g., "Add more historical sites", "Make Day 2 less busy"):</label>
+            <textarea id="refinementInput" rows="3"></textarea>
+            <button id="refineBtn">Refine Plan</button>
         </div>
 
     <script src="popup.js"></script>
