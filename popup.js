@@ -129,7 +129,12 @@ async function callGoogleApi(apiKey, promptText) {
             const itineraryText = data.candidates[0].content.parts[0].text;
             // TODO: Implement more sophisticated parsing here to extract sections
             // (Summary, Day Plan, Cost, Reasoning) instead of just dumping text.
-            resultsDiv.textContent = itineraryText; // Display raw text for now
+            //resultsDiv.textContent = itineraryText; // Display raw text for now
+                // Convert Markdown to HTML using marked.js
+            const renderedHtml = marked.parse(itineraryText); // Use marked.parse()
+
+            // Set the innerHTML of the results div
+            resultsDiv.innerHTML = renderedHtml;
         } else if (data.promptFeedback && data.promptFeedback.blockReason) {
              // Handle cases where the prompt itself was blocked
              showError(`Prompt blocked due to safety concerns: ${data.promptFeedback.blockReason}. Please modify your input.`);
